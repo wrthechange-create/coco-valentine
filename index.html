@@ -52,14 +52,25 @@
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            transition: transform 0.2s ease, left 0.3s ease, top 0.3s ease;
+            transition: transform 0.2s ease, left 0.3s ease, top 0.3s ease, font-size 0.2s ease;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             touch-action: manipulation;
             white-space: nowrap;
         }
 
-        #yesBtn { background: #ff2e63; color: white; z-index: 10; }
-        #noBtn { background: white; color: #ff2e63; z-index: 100; position: relative; }
+        #yesBtn { 
+            background: #ff2e63; 
+            color: white; 
+            z-index: 10; 
+            position: relative;
+        }
+
+        #noBtn { 
+            background: white; 
+            color: #ff2e63; 
+            z-index: 100; 
+            position: relative;
+        }
 
         #celebrationPage {
             display: none;
@@ -79,7 +90,6 @@
 
         .firework { position: absolute; bottom: 0; width: 5px; height: 5px; border-radius: 50%; animation: shoot 1.2s ease-out forwards; }
         @keyframes shoot { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-70vh) scale(15); opacity: 0; } }
-
         .heart { position: absolute; font-size: 2rem; animation: float 5s linear infinite; pointer-events: none; }
         @keyframes float { 0% { transform: translateY(110vh); } 100% { transform: translateY(-10vh); } }
     </style>
@@ -110,26 +120,37 @@
     const celebrationPage = document.getElementById('celebrationPage');
     const music = document.getElementById('music');
 
-    const noTexts = ['Really?', 'Nahhh 😏', 'Try again 😌', 'Wrong choice 😜', 'Think harder 🤔'];
+    const noTexts = [
+        "Really?", "Nahhh 😏", "Try again 😌", "Wrong choice 😜", "Think harder 🤔",
+        "Are you sure? 🤨", "Error 404: 'No' not found ❌", "I'll pretend I didn't see that 🙈",
+        "You're funny! 😂", "Keep trying... 🕒", "My mom said you have to say Yes 🤱",
+        "But I'm cute though? 🥺", "Access Denied 🔐", "Nice try, Houdini 🎩",
+        "Click the red one 👈", "Is that your final answer? 🎤", "Don't be like that! 🌹",
+        "I'll wait... 💅", "You're breaking my heart 💔", "I'm the best choice! 🏆",
+        "Look how big the Yes button is! ⬆️", "Are you misclicking? 🖱️", 
+        "No isn't an option, Coco! 😤", "Just click Yes already! ✨", "I can do this all day 🦸‍♂️"
+    ];
+
     let count = 0;
+    let yesScale = 1;
 
     const moveNoButton = (e) => {
-        // Prevent accidental clicks on mobile
-        if(e) e.preventDefault();
+        if(e && e.type === 'touchstart') e.preventDefault();
 
-        count++;
+        // Update text
         noBtn.textContent = noTexts[count % noTexts.length];
-        
-        // Ensure absolute positioning
-        noBtn.style.position = 'fixed';
+        count++;
 
-        // SAFE ZONE CALCULATION:
-        // Subtract button width/height and add a 20px margin so it never touches the edge
-        const padding = 20;
+        // Make the Yes button bigger and bigger
+        yesScale += 0.15;
+        yesBtn.style.transform = `scale(${yesScale})`;
+
+        // Move the No button
+        noBtn.style.position = 'fixed';
+        const padding = 30;
         const maxX = window.innerWidth - noBtn.offsetWidth - padding;
         const maxY = window.innerHeight - noBtn.offsetHeight - padding;
 
-        // Generate coordinates within the safe bounds
         const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
         const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
 
@@ -137,7 +158,6 @@
         noBtn.style.top = randomY + 'px';
     };
 
-    // Both listeners for desktop and mobile
     noBtn.addEventListener('mouseover', moveNoButton);
     noBtn.addEventListener('touchstart', moveNoButton);
 
