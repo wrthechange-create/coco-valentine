@@ -28,33 +28,32 @@
 
         h1 {
             font-family: 'Great Vibes', cursive;
-            font-size: clamp(2.5rem, 8vw, 4rem); /* Responsive font size */
+            font-size: clamp(2.5rem, 8vw, 4rem);
             color: #fff;
             margin-bottom: 40px;
             text-shadow: 2px 2px 10px rgba(0,0,0,.3);
         }
 
-        /* Fixed Mobile Overlap: Use Flex for initial state */
         .buttons {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px;
+            gap: 20px; /* This ensures they never overlap initially */
             width: 100%;
-            height: 100px;
+            height: 150px;
             position: relative;
         }
 
         button {
-            padding: 15px 35px;
-            font-size: 1.1rem;
+            padding: 15px 40px;
+            font-size: 1.2rem;
             font-weight: bold;
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            transition: transform 0.2s ease;
+            transition: 0.3s ease;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            touch-action: manipulation; /* Prevents zooming on fast taps */
+            touch-action: manipulation;
         }
 
         #yesBtn { background: #ff2e63; color: white; z-index: 10; }
@@ -63,52 +62,36 @@
             background: white; 
             color: #ff2e63; 
             z-index: 10;
+            /* Positioned relative initially to stay in the flex flow */
+            position: relative; 
         }
 
-        /* Celebration Section */
         #celebrationPage {
-            display: none; 
+            display: none;
             position: fixed;
             inset: 0;
             height: 100vh;
             width: 100vw;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
-                        url('https://raw.githubusercontent.com/wrthechange-create/coco-valentine/main/PXL_20260110_060601882.jpg');
+            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://raw.githubusercontent.com/wrthechange-create/coco-valentine/main/PXL_20260110_060601882.jpg');
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
+            color: white;
+            text-align: center;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 100;
         }
 
-        .celebration-photo {
-            width: min(280px, 70vw);
-            height: auto;
-            aspect-ratio: 3/4;
-            object-fit: cover;
-            border: 8px solid white;
-            border-bottom: 35px solid white;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-            margin: 20px 0;
-            transform: rotate(-3deg);
-            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        #celebrationPage h1 { font-size: clamp(2.5rem, 10vw, 4.5rem); margin-bottom: 20px; }
+        #celebrationPage p { font-size: 1.4rem; padding: 0 20px; }
 
-        @keyframes popIn {
-            0% { transform: scale(0) rotate(0deg); opacity: 0; }
-            100% { transform: scale(1) rotate(-3deg); opacity: 1; }
-        }
+        .firework { position: absolute; bottom: 0; width: 6px; height: 6px; border-radius: 50%; animation: shoot 1.2s ease-out forwards; }
+        @keyframes shoot { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-70vh) scale(15); opacity: 0; } }
 
-        #celebrationPage h1 { font-size: clamp(2.5rem, 10vw, 4rem); }
-        #celebrationPage p { font-size: 1.2rem; padding: 0 15px; }
-
-        /* Effects */
-        .firework, .heart { position: absolute; pointer-events: none; }
-        .firework { bottom: 0; width: 4px; height: 4px; border-radius: 50%; animation: shoot 1.2s ease-out forwards; }
-        @keyframes shoot { 0% {transform:translateY(0) scale(1); opacity:1} 100% {transform:translateY(-70vh) scale(20); opacity:0} }
-        .heart { font-size: 1.5rem; animation: float 5s linear infinite; }
-        @keyframes float { 0% {transform:translateY(110vh);} 100% {transform:translateY(-10vh);} }
+        .heart { position: absolute; font-size: 2rem; animation: float 6s linear infinite; }
+        @keyframes float { 0% { transform: translateY(110vh); opacity: 1; } 100% { transform: translateY(-10vh); opacity: 0; } }
     </style>
 </head>
 <body>
@@ -127,7 +110,6 @@
 
 <div id="celebrationPage">
     <h1>I knew it! 💖</h1>
-    <img src="https://raw.githubusercontent.com/wrthechange-create/coco-valentine/main/PXL_20260110_060601882.jpg" alt="Coco" class="celebration-photo">
     <p>Dinner's on me 😉 | Happy Valentine's Coco 🌹</p>
 </div>
 
@@ -138,39 +120,41 @@
     const celebrationPage = document.getElementById('celebrationPage');
     const music = document.getElementById('music');
 
-    const noTexts = ['Really?', 'Try again 😌', 'Wrong choice 😜', 'You sure? 🥺'];
+    const noTexts = ['Really?', 'Nahhh 😏', 'Try again 😌', 'Wrong choice 😜'];
     let count = 0;
 
-    // Fixed for Mobile: Combined MouseOver and Click for the "No" button
-    const moveNoButton = () => {
+    const handleNo = () => {
         count++;
         noBtn.textContent = noTexts[count % noTexts.length];
         
-        // Switch to absolute positioning only after first interaction to prevent overlap
+        // On the first interaction, we switch to absolute so it can jump around
         noBtn.style.position = 'absolute';
         
-        // Keep button within screen bounds
-        const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
-        const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+        // Calculate random position while staying within screen bounds
+        const maxX = window.innerWidth - noBtn.offsetWidth;
+        const maxY = window.innerHeight - noBtn.offsetHeight;
         
-        noBtn.style.left = x + 'px';
-        noBtn.style.top = y + 'px';
+        const randomX = Math.floor(Math.random() * maxX);
+        const randomY = Math.floor(Math.random() * maxY);
+        
+        noBtn.style.left = randomX + 'px';
+        noBtn.style.top = randomY + 'px';
     };
 
-    noBtn.addEventListener('mouseover', moveNoButton);
-    noBtn.addEventListener('touchstart', (e) => {
-        e.preventDefault(); // Prevents "ghost clicks" on mobile
-        moveNoButton();
-    });
+    noBtn.onclick = handleNo;
+    noBtn.onmouseover = handleNo;
 
     yesBtn.onclick = () => {
+        if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
         questionPage.style.display = 'none';
         celebrationPage.style.display = 'flex';
-        music.play().catch(() => {});
-        startEffects();
+        music.play().catch(e => console.log("Audio play blocked"));
+        fireworks();
+        hearts();
+        confettiBurst();
     };
 
-    function startEffects() {
+    function fireworks() {
         setInterval(() => {
             const fw = document.createElement('div');
             fw.className = 'firework';
@@ -178,17 +162,48 @@
             fw.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
             celebrationPage.appendChild(fw);
             setTimeout(() => fw.remove(), 1200);
-        }, 200);
+        }, 150);
+    }
 
+    function hearts() {
         setInterval(() => {
             const h = document.createElement('div');
             h.className = 'heart';
             h.innerHTML = '💖';
             h.style.left = Math.random() * 100 + 'vw';
-            h.style.animationDuration = (3 + Math.random() * 3) + 's';
+            h.style.animationDuration = (4 + Math.random() * 3) + 's';
             celebrationPage.appendChild(h);
-            setTimeout(() => h.remove(), 5000);
+            setTimeout(() => h.remove(), 6000);
         }, 400);
+    }
+
+    function confettiBurst() {
+        for (let i = 0; i < 80; i++) {
+            const c = document.createElement('div');
+            c.style.position = 'absolute';
+            c.style.width = '8px';
+            c.style.height = '8px';
+            c.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
+            c.style.left = '50%';
+            c.style.top = '50%';
+            c.style.borderRadius = '50%';
+            c.style.zIndex = '102';
+            
+            const angle = Math.random() * Math.PI * 2;
+            const velocity = Math.random() * 400;
+            const tx = Math.cos(angle) * velocity;
+            const ty = Math.sin(angle) * velocity;
+
+            c.style.transition = 'transform 1.5s ease-out, opacity 1.5s';
+            celebrationPage.appendChild(c);
+
+            setTimeout(() => {
+                c.style.transform = `translate(${tx}px, ${ty}px)`;
+                c.style.opacity = '0';
+            }, 10);
+            
+            setTimeout(() => c.remove(), 1600);
+        }
     }
 </script>
 </body>
