@@ -10,6 +10,7 @@
         
         body {
             height: 100vh;
+            width: 100vw;
             overflow: hidden;
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #ff758c, #ff7eb3);
@@ -22,97 +23,92 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            z-index: 10;
+            padding: 20px;
         }
 
         h1 {
             font-family: 'Great Vibes', cursive;
-            font-size: 4rem;
+            font-size: clamp(2.5rem, 8vw, 4rem); /* Responsive font size */
             color: #fff;
             margin-bottom: 40px;
             text-shadow: 2px 2px 10px rgba(0,0,0,.3);
-            padding: 0 20px;
         }
 
+        /* Fixed Mobile Overlap: Use Flex for initial state */
         .buttons {
-            position: relative;
-            width: 100%;
-            height: 200px;
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 20px;
+            width: 100%;
+            height: 100px;
+            position: relative;
         }
 
         button {
-            padding: 15px 45px;
-            font-size: 1.4rem;
+            padding: 15px 35px;
+            font-size: 1.1rem;
+            font-weight: bold;
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            transition: 0.3s ease;
-            z-index: 20;
+            transition: transform 0.2s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            touch-action: manipulation; /* Prevents zooming on fast taps */
         }
 
-        #yesBtn { background: #ff2e63; color: white; }
+        #yesBtn { background: #ff2e63; color: white; z-index: 10; }
 
         #noBtn { 
             background: white; 
             color: #ff2e63; 
-            position: absolute; /* Needed for the jumping effect */
-            left: 55%; 
+            z-index: 10;
         }
 
-        /* Celebration Page */
+        /* Celebration Section */
         #celebrationPage {
-            display: none; /* Hidden by default */
+            display: none; 
             position: fixed;
             inset: 0;
             height: 100vh;
             width: 100vw;
-            background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://raw.githubusercontent.com/wrthechange-create/coco-valentine/main/PXL_20260110_060601882.jpg');
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), 
+                        url('https://raw.githubusercontent.com/wrthechange-create/coco-valentine/main/PXL_20260110_060601882.jpg');
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
-            color: white;
-            text-align: center;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 100;
         }
 
-        #celebrationPage h1 { font-size: 4.5rem; margin-bottom: 20px; }
-        #celebrationPage p { font-size: 1.8rem; text-shadow: 2px 2px 5px rgba(0,0,0,0.5); }
-
-        /* Fireworks */
-        .firework {
-            position: absolute;
-            bottom: 0;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            animation: shoot 1.2s ease-out forwards;
-            z-index: 101;
+        .celebration-photo {
+            width: min(280px, 70vw);
+            height: auto;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            border: 8px solid white;
+            border-bottom: 35px solid white;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            margin: 20px 0;
+            transform: rotate(-3deg);
+            animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        @keyframes shoot {
-            0% { transform: translateY(0) scale(1); opacity: 1; }
-            100% { transform: translateY(-600px) scale(15); opacity: 0; }
+        @keyframes popIn {
+            0% { transform: scale(0) rotate(0deg); opacity: 0; }
+            100% { transform: scale(1) rotate(-3deg); opacity: 1; }
         }
 
-        /* Floating hearts */
-        .heart {
-            position: absolute;
-            font-size: 2rem;
-            animation: float 6s linear infinite;
-            z-index: 101;
-        }
+        #celebrationPage h1 { font-size: clamp(2.5rem, 10vw, 4rem); }
+        #celebrationPage p { font-size: 1.2rem; padding: 0 15px; }
 
-        @keyframes float {
-            0% { transform: translateY(100vh); opacity: 1; }
-            100% { transform: translateY(-10vh); opacity: 0; }
-        }
+        /* Effects */
+        .firework, .heart { position: absolute; pointer-events: none; }
+        .firework { bottom: 0; width: 4px; height: 4px; border-radius: 50%; animation: shoot 1.2s ease-out forwards; }
+        @keyframes shoot { 0% {transform:translateY(0) scale(1); opacity:1} 100% {transform:translateY(-70vh) scale(20); opacity:0} }
+        .heart { font-size: 1.5rem; animation: float 5s linear infinite; }
+        @keyframes float { 0% {transform:translateY(110vh);} 100% {transform:translateY(-10vh);} }
     </style>
 </head>
 <body>
@@ -130,7 +126,8 @@
 </div>
 
 <div id="celebrationPage">
-    <h1>I knew you'd say YES 💖</h1>
+    <h1>I knew it! 💖</h1>
+    <img src="https://raw.githubusercontent.com/wrthechange-create/coco-valentine/main/PXL_20260110_060601882.jpg" alt="Coco" class="celebration-photo">
     <p>Dinner's on me 😉 | Happy Valentine's Coco 🌹</p>
 </div>
 
@@ -141,106 +138,58 @@
     const celebrationPage = document.getElementById('celebrationPage');
     const music = document.getElementById('music');
 
-    const noTexts = [
-        'Really?',
-        "Nahhh you don't want that 😏",
-        'Try again 😌',
-        'Think harder 🤔',
-        'Wrong choice 😜'
-    ];
-
+    const noTexts = ['Really?', 'Try again 😌', 'Wrong choice 😜', 'You sure? 🥺'];
     let count = 0;
 
-    noBtn.onclick = () => {
+    // Fixed for Mobile: Combined MouseOver and Click for the "No" button
+    const moveNoButton = () => {
         count++;
         noBtn.textContent = noTexts[count % noTexts.length];
         
-        // Move the button to a random position
-        const x = Math.random() * (window.innerWidth - 150);
-        const y = Math.random() * (window.innerHeight - 80);
-        
+        // Switch to absolute positioning only after first interaction to prevent overlap
         noBtn.style.position = 'absolute';
+        
+        // Keep button within screen bounds
+        const x = Math.random() * (window.innerWidth - noBtn.offsetWidth);
+        const y = Math.random() * (window.innerHeight - noBtn.offsetHeight);
+        
         noBtn.style.left = x + 'px';
         noBtn.style.top = y + 'px';
     };
 
+    noBtn.addEventListener('mouseover', moveNoButton);
+    noBtn.addEventListener('touchstart', (e) => {
+        e.preventDefault(); // Prevents "ghost clicks" on mobile
+        moveNoButton();
+    });
+
     yesBtn.onclick = () => {
-        if (navigator.vibrate) {
-            navigator.vibrate([200, 100, 200, 100, 400]);
-        }
         questionPage.style.display = 'none';
         celebrationPage.style.display = 'flex';
-        
-        // Play music (Note: Browser might block this until user interacts)
-        music.play().catch(e => console.log("Music play blocked until user interaction."));
-        
-        fireworks();
-        hearts();
-        confettiBurst();
+        music.play().catch(() => {});
+        startEffects();
     };
 
-    function fireworks() {
+    function startEffects() {
         setInterval(() => {
             const fw = document.createElement('div');
             fw.className = 'firework';
-            fw.style.left = Math.random() * window.innerWidth + 'px';
+            fw.style.left = Math.random() * 100 + 'vw';
             fw.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
             celebrationPage.appendChild(fw);
             setTimeout(() => fw.remove(), 1200);
-        }, 120);
-    }
+        }, 200);
 
-    function hearts() {
         setInterval(() => {
             const h = document.createElement('div');
             h.className = 'heart';
             h.innerHTML = '💖';
-            h.style.left = Math.random() * window.innerWidth + 'px';
-            h.style.animationDuration = (4 + Math.random() * 3) + 's';
+            h.style.left = Math.random() * 100 + 'vw';
+            h.style.animationDuration = (3 + Math.random() * 3) + 's';
             celebrationPage.appendChild(h);
-            setTimeout(() => h.remove(), 7000);
+            setTimeout(() => h.remove(), 5000);
         }, 400);
-    }
-
-    function confettiBurst() {
-        for (let i = 0; i < 120; i++) {
-            const c = document.createElement('div');
-            c.style.position = 'absolute';
-            c.style.width = '8px';
-            c.style.height = '8px';
-            c.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
-            c.style.left = '50%';
-            c.style.top = '50%';
-            c.style.borderRadius = '50%';
-            c.style.zIndex = '102';
-            
-            // Random direction
-            const angle = Math.random() * Math.PI * 2;
-            const velocity = Math.random() * 300;
-            const tx = Math.cos(angle) * velocity;
-            const ty = Math.sin(angle) * velocity;
-
-            c.style.transition = 'transform 1.5s ease-out, opacity 1.5s';
-            celebrationPage.appendChild(c);
-
-            setTimeout(() => {
-                c.style.transform = `translate(${tx}px, ${ty}px)`;
-                c.style.opacity = '0';
-            }, 10);
-            
-            setTimeout(() => c.remove(), 1600);
-        }
     }
 </script>
 </body>
-</html>
-    c.style.borderRadius='50%';
-    c.style.transform=`translate(-50%,-50%) translate(${Math.random()*600-300}px,${Math.random()*600-300}px)`;
-    c.style.transition='transform 1.5s ease, opacity 1.5s';
-    celebrationPage.appendChild(c);
-    setTimeout(()=>c.style.opacity=0,50);
-    setTimeout(()=>c.remove(),1600);
-  }
-}
-</script></body>
 </html>
