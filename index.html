@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>For Coco 💖</title>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
@@ -14,6 +14,7 @@
             overflow: hidden;
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            position: relative;
         }
 
         #questionPage {
@@ -38,60 +39,49 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 20px; /* This ensures they never overlap initially */
+            gap: 20px;
             width: 100%;
-            height: 150px;
+            height: 100px;
             position: relative;
         }
 
         button {
-            padding: 15px 40px;
+            padding: 15px 35px;
             font-size: 1.2rem;
             font-weight: bold;
             border: none;
             border-radius: 50px;
             cursor: pointer;
-            transition: 0.3s ease;
+            transition: transform 0.2s ease, left 0.3s ease, top 0.3s ease;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             touch-action: manipulation;
+            white-space: nowrap;
         }
 
         #yesBtn { background: #ff2e63; color: white; z-index: 10; }
-
-        #noBtn { 
-            background: white; 
-            color: #ff2e63; 
-            z-index: 10;
-            /* Positioned relative initially to stay in the flex flow */
-            position: relative; 
-        }
+        #noBtn { background: white; color: #ff2e63; z-index: 100; position: relative; }
 
         #celebrationPage {
             display: none;
             position: fixed;
             inset: 0;
-            height: 100vh;
-            width: 100vw;
             background-image: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url('https://raw.githubusercontent.com/wrthechange-create/coco-valentine/main/PXL_20260110_060601882.jpg');
             background-size: cover;
             background-position: center;
-            background-repeat: no-repeat;
-            color: white;
-            text-align: center;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 100;
+            z-index: 1000;
         }
 
-        #celebrationPage h1 { font-size: clamp(2.5rem, 10vw, 4.5rem); margin-bottom: 20px; }
-        #celebrationPage p { font-size: 1.4rem; padding: 0 20px; }
+        #celebrationPage h1 { font-size: clamp(2.5rem, 10vw, 4.5rem); margin-bottom: 20px; color: white; }
+        #celebrationPage p { font-size: 1.4rem; color: white; text-align: center; padding: 0 20px; }
 
-        .firework { position: absolute; bottom: 0; width: 6px; height: 6px; border-radius: 50%; animation: shoot 1.2s ease-out forwards; }
-        @keyframes shoot { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-70vh) scale(15); opacity: 0; } }
+        .firework { position: absolute; bottom: 0; width: 5px; height: 5px; border-radius: 50%; animation: shoot 1.2s ease-out forwards; }
+        @keyframes shoot { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-70vh) scale(15); opacity: 0; } }
 
-        .heart { position: absolute; font-size: 2rem; animation: float 6s linear infinite; }
-        @keyframes float { 0% { transform: translateY(110vh); opacity: 1; } 100% { transform: translateY(-10vh); opacity: 0; } }
+        .heart { position: absolute; font-size: 2rem; animation: float 5s linear infinite; pointer-events: none; }
+        @keyframes float { 0% { transform: translateY(110vh); } 100% { transform: translateY(-10vh); } }
     </style>
 </head>
 <body>
@@ -120,41 +110,46 @@
     const celebrationPage = document.getElementById('celebrationPage');
     const music = document.getElementById('music');
 
-    const noTexts = ['Really?', 'Nahhh 😏', 'Try again 😌', 'Wrong choice 😜'];
+    const noTexts = ['Really?', 'Nahhh 😏', 'Try again 😌', 'Wrong choice 😜', 'Think harder 🤔'];
     let count = 0;
 
-    const handleNo = () => {
+    const moveNoButton = (e) => {
+        // Prevent accidental clicks on mobile
+        if(e) e.preventDefault();
+
         count++;
         noBtn.textContent = noTexts[count % noTexts.length];
         
-        // On the first interaction, we switch to absolute so it can jump around
-        noBtn.style.position = 'absolute';
-        
-        // Calculate random position while staying within screen bounds
-        const maxX = window.innerWidth - noBtn.offsetWidth;
-        const maxY = window.innerHeight - noBtn.offsetHeight;
-        
-        const randomX = Math.floor(Math.random() * maxX);
-        const randomY = Math.floor(Math.random() * maxY);
-        
+        // Ensure absolute positioning
+        noBtn.style.position = 'fixed';
+
+        // SAFE ZONE CALCULATION:
+        // Subtract button width/height and add a 20px margin so it never touches the edge
+        const padding = 20;
+        const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+        const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+
+        // Generate coordinates within the safe bounds
+        const randomX = Math.max(padding, Math.floor(Math.random() * maxX));
+        const randomY = Math.max(padding, Math.floor(Math.random() * maxY));
+
         noBtn.style.left = randomX + 'px';
         noBtn.style.top = randomY + 'px';
     };
 
-    noBtn.onclick = handleNo;
-    noBtn.onmouseover = handleNo;
+    // Both listeners for desktop and mobile
+    noBtn.addEventListener('mouseover', moveNoButton);
+    noBtn.addEventListener('touchstart', moveNoButton);
 
     yesBtn.onclick = () => {
         if (navigator.vibrate) navigator.vibrate([200, 100, 200]);
         questionPage.style.display = 'none';
         celebrationPage.style.display = 'flex';
-        music.play().catch(e => console.log("Audio play blocked"));
-        fireworks();
-        hearts();
-        confettiBurst();
+        music.play().catch(() => {});
+        startEffects();
     };
 
-    function fireworks() {
+    function startEffects() {
         setInterval(() => {
             const fw = document.createElement('div');
             fw.className = 'firework';
@@ -162,48 +157,17 @@
             fw.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
             celebrationPage.appendChild(fw);
             setTimeout(() => fw.remove(), 1200);
-        }, 150);
-    }
+        }, 200);
 
-    function hearts() {
         setInterval(() => {
             const h = document.createElement('div');
             h.className = 'heart';
             h.innerHTML = '💖';
             h.style.left = Math.random() * 100 + 'vw';
-            h.style.animationDuration = (4 + Math.random() * 3) + 's';
+            h.style.animationDuration = (3 + Math.random() * 3) + 's';
             celebrationPage.appendChild(h);
-            setTimeout(() => h.remove(), 6000);
+            setTimeout(() => h.remove(), 5000);
         }, 400);
-    }
-
-    function confettiBurst() {
-        for (let i = 0; i < 80; i++) {
-            const c = document.createElement('div');
-            c.style.position = 'absolute';
-            c.style.width = '8px';
-            c.style.height = '8px';
-            c.style.background = `hsl(${Math.random() * 360}, 100%, 60%)`;
-            c.style.left = '50%';
-            c.style.top = '50%';
-            c.style.borderRadius = '50%';
-            c.style.zIndex = '102';
-            
-            const angle = Math.random() * Math.PI * 2;
-            const velocity = Math.random() * 400;
-            const tx = Math.cos(angle) * velocity;
-            const ty = Math.sin(angle) * velocity;
-
-            c.style.transition = 'transform 1.5s ease-out, opacity 1.5s';
-            celebrationPage.appendChild(c);
-
-            setTimeout(() => {
-                c.style.transform = `translate(${tx}px, ${ty}px)`;
-                c.style.opacity = '0';
-            }, 10);
-            
-            setTimeout(() => c.remove(), 1600);
-        }
     }
 </script>
 </body>
